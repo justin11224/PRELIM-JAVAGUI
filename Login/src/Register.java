@@ -3,6 +3,8 @@ import config.config;
 import java.awt.Color;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import javax.swing.JOptionPane;
 
 /*
@@ -21,6 +23,38 @@ public class Register extends javax.swing.JFrame {
      */
     public Register() {
         initComponents();
+    }
+
+    public static String Em, username;
+
+    public boolean duplicateCheck() {
+        config dbc = new config();
+
+        try {
+            String query = "SELECT * FROM users WHERE Username = '" + Username.getText() + "' OR Email = '" + email.getText() + "'";
+            ResultSet resultSet = dbc.getData(query);
+
+            if (resultSet.next()) {
+                Em = resultSet.getString("Email");
+                if (Em.equals(email.getText())) {
+                    JOptionPane.showMessageDialog(null, "Email is Already Used!");
+                    email.setText("");
+                }
+
+                username = resultSet.getString("Username");
+                if (username.equals(Username.getText())) {
+                    JOptionPane.showMessageDialog(null, "Username is Already Used!");
+                    Username.setText("");
+                }
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            System.out.println("" + ex);
+            return false;
+        }
     }
 
     public void close() {
@@ -42,6 +76,7 @@ public class Register extends javax.swing.JFrame {
         jComboBox1 = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTextArea1 = new javax.swing.JTextArea();
+        pass3 = new javax.swing.JTextField();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
@@ -52,8 +87,10 @@ public class Register extends javax.swing.JFrame {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
         pass2 = new javax.swing.JTextField();
+        jLabel4 = new javax.swing.JLabel();
+        Username = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         ut = new javax.swing.JComboBox<>();
         address = new javax.swing.JTextField();
@@ -75,6 +112,15 @@ public class Register extends javax.swing.JFrame {
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane1.setViewportView(jTextArea1);
+
+        pass3.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pass3FocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                pass3FocusLost(evt);
+            }
+        });
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         getContentPane().setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
@@ -126,11 +172,11 @@ public class Register extends javax.swing.JFrame {
 
         jLabel10.setForeground(new java.awt.Color(0, 255, 255));
         jLabel10.setText("Vefiry Password");
-        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 280, 90, 10));
+        jPanel1.add(jLabel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 270, 90, 10));
 
-        jLabel4.setForeground(new java.awt.Color(0, 255, 255));
-        jLabel4.setText("Email");
-        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, -1, -1));
+        jLabel11.setForeground(new java.awt.Color(0, 255, 255));
+        jLabel11.setText("Username");
+        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 270, -1, -1));
 
         pass2.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -140,7 +186,26 @@ public class Register extends javax.swing.JFrame {
                 pass2FocusLost(evt);
             }
         });
-        jPanel1.add(pass2, new org.netbeans.lib.awtextra.AbsoluteConstraints(290, 250, 140, 30));
+        pass2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pass2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(pass2, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 240, 140, 30));
+
+        jLabel4.setForeground(new java.awt.Color(0, 255, 255));
+        jLabel4.setText("Email");
+        jPanel1.add(jLabel4, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 210, -1, -1));
+
+        Username.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                UsernameFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                UsernameFocusLost(evt);
+            }
+        });
+        jPanel1.add(Username, new org.netbeans.lib.awtextra.AbsoluteConstraints(450, 240, 140, 30));
 
         jButton3.setText("Register");
         jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -338,63 +403,76 @@ public class Register extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:|
-           pass1.setText("");
-           first.setText("");
-           pass2.setText("");
-           mid.setText("");
-           last.setText("");
-           email.setText("");
-           contact.setText("");
-           address.setText("");
-           ut.setSelectedIndex(0); 
+        pass1.setText("");
+        first.setText("");
+        Username.setText("");
+        mid.setText("");
+        last.setText("");
+        email.setText("");
+        contact.setText("");
+        address.setText("");
+        ut.setSelectedIndex(0);
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void pass2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass2FocusGained
+    private void UsernameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_UsernameFocusGained
         // TODO add your handling code here:
 
-    }//GEN-LAST:event_pass2FocusGained
+    }//GEN-LAST:event_UsernameFocusGained
 
-    private void pass2FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass2FocusLost
+    private void UsernameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_UsernameFocusLost
         // TODO add your handling code here:
 
-    }//GEN-LAST:event_pass2FocusLost
+    }//GEN-LAST:event_UsernameFocusLost
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
         String firstName = first.getText().trim();
-String middleName = mid.getText().trim();
-String lastName = last.getText().trim();
-String password1 = pass1.getText().trim(); 
-String password2 = pass2.getText().trim();
-String contactNumber = contact.getText().trim();
-String addressText = address.getText().trim();
-String emailText = email.getText().trim();
+        String middleName = mid.getText().trim();
+        String lastName = last.getText().trim();
+        String password1 = pass1.getText().trim();
+        String password2 = pass2.getText().trim();
+        String username1 = Username.getText().trim();
+        String contactNumber = contact.getText().trim();
+        String addressText = address.getText().trim();
+        String emailText = email.getText().trim();
 
-if (firstName.isEmpty() || lastName.isEmpty() || ut.getSelectedIndex()==0
-        || password1.isEmpty() || password2.isEmpty() || contactNumber.isEmpty() || emailText.isEmpty()) {
-    JOptionPane.showMessageDialog(null, "All fields are required except middle name because it is optional!");
-} else if (password1.length() < 8) {
-    JOptionPane.showMessageDialog(null, "Password must be at least 8 characters long.");
-} else if (!password1.equals(password2)) {
-    JOptionPane.showMessageDialog(null, "Passwords do not match.");
-} else if (!contactNumber.matches("\\d{10,15}")) {
-    JOptionPane.showMessageDialog(null, "Contact number must contain only numbers and be between 10-15 digits.");
-} else if (!emailText.matches("^.+@.+\\..+$")) {
-    JOptionPane.showMessageDialog(null, "Invalid email format.");
-} else{
-    config dbc = new config();
-if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Role, Contact,Status) " +
-                   "VALUES ('" + first.getText() + "', '" + mid.getText() + "', '" + last.getText() + "', '" +
-                   email.getText() + "', '" + pass1.getText() + "', '" +  ut.getSelectedItem() + "', '" + 
-                   contact.getText() + "', 'Pending')") == 1) {
+        if (firstName.isEmpty() || lastName.isEmpty() || ut.getSelectedIndex() == 0
+                || password1.isEmpty() || password2.isEmpty() || contactNumber.isEmpty() || emailText.isEmpty() || username1.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "All fields are required except middle name because it is optional!");
+        } else if (password1.length() < 8) {
+            JOptionPane.showMessageDialog(null, "Password must be at least 8 characters long.");
+        } else if (!password1.equals(password2)) {
+            JOptionPane.showMessageDialog(null, "Passwords do not match.");
+        } else if (!contactNumber.matches("\\d{10,15}")) {
+            JOptionPane.showMessageDialog(null, "Contact number must contain only numbers and be between 10-15 digits.");
+        } else if (!emailText.matches("^.+@.+\\..+$")) {
+            JOptionPane.showMessageDialog(null, "Invalid email format.");
+        } else if (duplicateCheck()) {
+            System.out.println("DUPLICATE EXIST");
+        } else {
+            config dbc = new config();
+            if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Role, Contact,Status,Username) "
+                    + "VALUES ('" + firstName + "', '" + middleName + "', '" + lastName + "', '"
+                    + emailText + "', '" + password1 + "', '" + ut.getSelectedItem() + "', '"
+                    + contactNumber + "', 'Pending', '" + username1 + "')") == 1) {
 
+                JOptionPane.showMessageDialog(null, "Successfully Registered");
+                pass1.setText("");
+                first.setText("");
+                Username.setText("");
+                mid.setText("");
+                last.setText("");
+                email.setText("");
+                contact.setText("");
+                address.setText("");
+                ut.setSelectedIndex(0);
+                close();
+                login li = new login();
+                li.setVisible(true);
 
+            }
 
-
-    JOptionPane.showMessageDialog(null, "Successfully Registered");
-}
-
-}
+        }
 
 
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -402,6 +480,26 @@ if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Ro
     private void lastActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lastActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_lastActionPerformed
+
+    private void pass3FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass3FocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pass3FocusGained
+
+    private void pass3FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass3FocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pass3FocusLost
+
+    private void pass2FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass2FocusGained
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pass2FocusGained
+
+    private void pass2FocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pass2FocusLost
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pass2FocusLost
+
+    private void pass2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pass2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_pass2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -439,6 +537,7 @@ if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Ro
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField Username;
     private javax.swing.JTextField address;
     private javax.swing.JTextField contact;
     private javax.swing.JTextField email;
@@ -450,6 +549,7 @@ if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Ro
     private javax.swing.JFrame jFrame1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -467,6 +567,7 @@ if (dbc.insertData("INSERT INTO users (Fname, MidName, Lname, Email,Password, Ro
     private javax.swing.JTextField mid;
     private javax.swing.JTextField pass1;
     private javax.swing.JTextField pass2;
+    private javax.swing.JTextField pass3;
     private javax.swing.JComboBox<String> ut;
     // End of variables declaration//GEN-END:variables
 }

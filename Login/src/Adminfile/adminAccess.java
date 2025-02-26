@@ -5,8 +5,6 @@
  */
 package Adminfile;
 
-import UserTable.users_table;
-
 /**
  *
  * @author just4

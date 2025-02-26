@@ -1,11 +1,15 @@
 package UserTable;
 
+import config.config;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import net.proteanit.sql.DbUtils;
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author just4
@@ -17,6 +21,33 @@ public class Buyer extends javax.swing.JFrame {
      */
     public Buyer() {
         initComponents();
+        displayData();
+    }
+
+    public void displayData() {
+        try {
+            config dbc = new config();
+            ResultSet rs = dbc.getData("SELECT * FROM users");
+
+            if (rs.next()) {
+                String firstName = rs.getString("Fname");
+                String middleName = rs.getString("Midname");
+                String lastName = rs.getString("Lname");
+
+                if (middleName == null || middleName.trim().isEmpty()) {
+                    middleName = "";
+                }
+
+                String fullName = (firstName + " " + middleName + " " + lastName).trim();
+                userid.setText(fullName);
+            } else {
+                userid.setText("No user found");
+            }
+
+            rs.close();
+        } catch (SQLException ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
     }
 
     /**
@@ -29,6 +60,7 @@ public class Buyer extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        userid = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -43,11 +75,17 @@ public class Buyer extends javax.swing.JFrame {
                 .addContainerGap(277, Short.MAX_VALUE)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 211, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(140, 140, 140))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(28, 28, 28)
+                .addComponent(userid, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(135, 135, 135)
+                .addContainerGap()
+                .addComponent(userid, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(70, 70, 70)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 77, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(174, Short.MAX_VALUE))
         );
@@ -94,5 +132,6 @@ public class Buyer extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel userid;
     // End of variables declaration//GEN-END:variables
 }

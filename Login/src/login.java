@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import javax.swing.JFrame;
 import com.sun.jndi.ldap.Connection;
+import config.config;
 import java.awt.Toolkit;
 import java.awt.event.WindowEvent;
 import java.sql.DriverManager;
@@ -21,16 +22,16 @@ import javax.swing.JOptionPane;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author just4
  */
 public class login extends javax.swing.JFrame {
-java.sql.Connection config=null;
-ResultSet rs = null;
-Statement st=null;
-private JFrame Frame;
+
+    java.sql.Connection config = null;
+    ResultSet rs = null;
+    Statement st = null;
+    private JFrame Frame;
 
     /**
      * Creates new form login
@@ -38,10 +39,33 @@ private JFrame Frame;
     public login() {
         initComponents();
     }
-public void close() {
-    WindowEvent closeWindow = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-    Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeWindow);
-}
+
+    static String status, Type, user;
+
+    public static boolean loginAcc(String username, String password) {
+        config connector = new config();
+        try {
+            String query = "SELECT * FROM users WHERE Username = '" + username + "' AND Password = '" + password + "'";
+            ResultSet resultSet = connector.getData(query);
+            if (resultSet.next()) {
+                status = resultSet.getString("Status");
+                Type = resultSet.getString("Role");
+                user = resultSet.getString("user_id");
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException ex) {
+            return false;
+        }
+
+    }
+
+    public void close() {
+        WindowEvent closeWindow = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(closeWindow);
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -64,7 +88,6 @@ public void close() {
         jButton3 = new javax.swing.JButton();
         pass = new javax.swing.JPasswordField();
         show = new javax.swing.JCheckBox();
-        jButton4 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         name = new javax.swing.JTextField();
@@ -159,20 +182,10 @@ public void close() {
         });
         jPanel1.add(show, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 220, 110, 20));
 
-        jButton4.setBackground(new java.awt.Color(153, 153, 255));
-        jButton4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jButton4.setText("REGISTER");
-        jButton4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton4ActionPerformed(evt);
-            }
-        });
-        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 300, 150, 30));
-
         jLabel2.setBackground(new java.awt.Color(0, 255, 255));
         jLabel2.setFont(new java.awt.Font("Arial", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 102));
-        jLabel2.setText("Dont have an accout?");
+        jLabel2.setForeground(new java.awt.Color(0, 255, 255));
+        jLabel2.setText("Dont have an accout?REGISTER");
         jLabel2.addAncestorListener(new javax.swing.event.AncestorListener() {
             public void ancestorMoved(javax.swing.event.AncestorEvent evt) {
             }
@@ -182,7 +195,12 @@ public void close() {
             public void ancestorRemoved(javax.swing.event.AncestorEvent evt) {
             }
         });
-        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(100, 270, 160, 30));
+        jLabel2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel2MouseClicked(evt);
+            }
+        });
+        jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 290, 230, 30));
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/picture/sasaas.png"))); // NOI18N
         jLabel4.setText("jLabel4");
@@ -222,7 +240,7 @@ public void close() {
 
     private void nameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nameActionPerformed
         // TODO add your handling code here:
-     
+
 
     }//GEN-LAST:event_nameActionPerformed
 
@@ -230,36 +248,42 @@ public void close() {
         // TODO add your handling code here:
     }//GEN-LAST:event_jLabel2AncestorAdded
 
-    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
-        // TODO add your handling code here:
-       
-        Register rg = new Register();
-        rg.setVisible(true);
-        this.dispose();
-                
-        
-    }//GEN-LAST:event_jButton4ActionPerformed
-
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-       String name1 = name.getText();
-String pass1 = pass.getText();
-        if (name1.contains("user") && pass1.contains("user")) {
-    Buyer rg = new Buyer();
-    rg.setVisible(true);
-    this.dispose();
-} else if (name1.contains("admin") && pass1.contains("admin")) {
-    adminAccess rg = new adminAccess();
-    rg.setVisible(true);
-    this.dispose();
-}
-       else if (name.getText().equals("")) {
-    JOptionPane.showMessageDialog(null, "Please fill out username");
-} else if (pass.getText().equals("")) {
-    JOptionPane.showMessageDialog(null, "Please fill out password");
-}else {
-    JOptionPane.showMessageDialog(null, "Wtong password or Wrong Username","Message",JOptionPane.ERROR_MESSAGE);
-}
+        if (loginAcc(name.getText(), pass.getText())) {
+            if (!status.equals("Active")) {
+                JOptionPane.showMessageDialog(null, "Your account is Pending wait for Admin Activated you account");
+                JOptionPane.showMessageDialog(null, "Thank you!");
+                name.setText("");
+                pass.setText("");
+            } else {
+                JOptionPane.showMessageDialog(null, "Login Successfully!");
+                if (Type.equals("Admin")) {
+                    adminAccess aA = new adminAccess();
+                    aA.setVisible(true);
+                    this.dispose();
+                }
+                if (Type.equals("Buyer")) {
+                    Buyer aA = new Buyer();
+                    aA.setVisible(true);
+                    this.dispose();
+                }
+                if (Type.equals("Seller")) {
+                    Buyer aA = new Buyer();
+                    aA.setVisible(true);
+                    this.dispose();
+                }
+                if (Type.equals("Moderator")) {
+                    Buyer aA = new Buyer();
+                    aA.setVisible(true);
+                    this.dispose();
+                }
+
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Invalid Account");
+        }
+
+
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
@@ -269,9 +293,9 @@ String pass1 = pass.getText();
 
     private void showActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showActionPerformed
         // TODO add your handling code here:|
-   if (show.isSelected()) {
-    pass.setEchoChar((char) 0);
-} else {
+        if (show.isSelected()) {
+            pass.setEchoChar((char) 0);
+        } else {
             pass.setEchoChar('*');
         }
 
@@ -284,32 +308,39 @@ String pass1 = pass.getText();
 
     private void nameFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_nameFocusLost
         // TODO add your handling code here:
-       
+
     }//GEN-LAST:event_nameFocusLost
 
     private void nameFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_nameFocusGained
         // TODO add your handling code here:
-          
+
     }//GEN-LAST:event_nameFocusGained
 
     private void passFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_passFocusGained
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_passFocusGained
 
     private void passFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_passFocusLost
         // TODO add your handling code here:
-       
+
     }//GEN-LAST:event_passFocusLost
 
     private void showAncestorAdded(javax.swing.event.AncestorEvent evt) {//GEN-FIRST:event_showAncestorAdded
         // TODO add your handling code here:
     }//GEN-LAST:event_showAncestorAdded
-private void CloseMe() 
-{
-    WindowEvent meClose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
-    Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(meClose);
-}
+
+    private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
+        // TODO add your handling code here:
+
+        Register rg = new Register();
+        rg.setVisible(true);
+        this.dispose();
+    }//GEN-LAST:event_jLabel2MouseClicked
+    private void CloseMe() {
+        WindowEvent meClose = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+        Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(meClose);
+    }
 
     /**
      * @param args the command line arguments
@@ -350,7 +381,6 @@ private void CloseMe()
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
